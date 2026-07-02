@@ -1,0 +1,7 @@
+id_producto,stock_disponible,bodega,fecha_actualizacion
+101,15,Bodega Central,2026-07-01
+102,0,Bodega Central,2026-07-01
+103,50,Bodega Auxiliar,
+104,8,Bodega Central,2026-07-01
+105,-5,Bodega Auxiliar,2026-07-01
+106,22,Bodega Central,2026-07-01

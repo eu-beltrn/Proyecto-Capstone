@@ -1,0 +1,81 @@
+import pandas as pd
+import json
+import sqlite3
+import os
+
+def extract_csv(file_path):
+    """Extrae datos de ventas desde un archivo CSV."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"No se encontró el archivo de ventas: {file_path}")
+    return pd.read_csv(file_path)
+
+def extract_excel(file_path):
+    """Extrae datos de productos (soporta tanto .xlsx como .csv de respaldo)."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"No se encontró el archivo de productos: {file_path}")
+    # Si viene como CSV debido a la conversión, usamos read_csv, sino read_excel
+    if file_path.endswith('.csv'):
+        return pd.read_csv(file_path)
+    return pd.read_excel(file_path)
+
+def extract_json(file_path):
+    """Extrae datos de clientes desde un archivo JSON."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"No se encontró el archivo de clientes: {file_path}")
+    return pd.read_json(file_path)
+
+def extract_sqlite(db_path, log, table_name="stock_diario"):
+    """Extrae datos de inventario desde SQLite de forma dinámica si el nombre cambia."""
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(f"No se encontró la DB de inventario: {db_path}")
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Listar todas las tablas disponibles en el archivo de Nicole
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    available_tables = [row[0] for row in cursor.fetchall()]
+    
+    if not available_tables:
+        conn.close()
+        raise ValueError(f"El archivo SQLite en {db_path} no contiene ninguna tabla.")
+    
+    # Si 'stock_diario' no está, tomamos la primera tabla que exista de forma inteligente
+    if table_name not in available_tables:
+        selected_table = available_tables[0]
+        log.warning(f"La tabla esperada '{table_name}' no existe. Extrayendo dinámicamente de '{selected_table}'.")
+    else:
+        selected_table = table_name
+
+    query = f"SELECT * FROM [{selected_table}]"
+    df = pd.read_sql_query(query, conn)
+    conn.close()
+    return df
+
+def extract_api_mock(file_path):
+    """Simula la extracción desde una API REST leyendo un archivo JSON de campañas."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"No se encontró el mock de la API de campañas: {file_path}")
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return pd.DataFrame(data)
+
+def run_extraction(log):
+    """Ejecuta todo el bloque de extracción y retorna un diccionario con DataFrames."""
+    log.info("Iniciando fase de EXTRACCIÓN...")
+    
+    prod_path = "data/raw/productos.xlsx - Sheet1.csv" if os.path.exists("data/raw/productos.xlsx - Sheet1.csv") else "data/raw/productos.xlsx"
+
+    data = {
+        "ventas": extract_csv("data/raw/ventas.csv"),
+        "productos": extract_excel(prod_path),
+        "clientes": extract_json("data/raw/clientes.json"),
+        # Pasamos el log y el nuevo nombre por defecto 'stock_diario'
+        "inventario": extract_sqlite("data/raw/inventario.db", log, "stock_diario"),
+        "campanas": extract_api_mock("data/raw/api_campanas.json")
+    }
+    
+    for key, df in data.items():
+        log.info(f"-> Extraído con éxito: {key} ({df.shape[0]} registros originales)")
+        
+    return data
