@@ -1,0 +1,1 @@
+-- vistas analíticas: vw_ventas_categoria, vw_top_clientes
