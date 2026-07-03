@@ -1,0 +1,13 @@
+En archivos tipo markdown (md), documentaremos lo siguiente:
+
+docs/
+
+arquitectura.md
+
+modelo_relacional.md
+
+modelo_estrella.md
+
+diccionario_datos.md
+
+reglas_calidad.md
