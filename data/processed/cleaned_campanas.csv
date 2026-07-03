@@ -1,4 +1,3 @@
-id_campana,nombre_campana,canal,presupuesto
-C-01,Cyber Monday Tech,Facebook Ads,1500.0
-C-02,Lanzamiento S24,Google Ads,3000.0
-C-03,Descuentos Oficina,Instagram,800.0
+campaña_id,fecha,plataforma,impresiones,clics,costo,leads,conversiones
+1,2026-07-01,FACEBOOK,12000,420,150.5,30,8
+2,2026-07-02,INSTAGRAM,9800,350,110.0,22,6

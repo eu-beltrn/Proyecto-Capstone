@@ -32,7 +32,7 @@ def extract_sqlite(db_path, log, table_name="stock_diario"):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # Listar todas las tablas disponibles en el archivo de Nicole
+    # Listar todas las tablas disponibles
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     available_tables = [row[0] for row in cursor.fetchall()]
     
@@ -70,9 +70,11 @@ def run_extraction(log):
         "ventas": extract_csv("data/raw/ventas.csv"),
         "productos": extract_excel(prod_path),
         "clientes": extract_json("data/raw/clientes.json"),
-        # Pasamos el log y el nuevo nombre por defecto 'stock_diario'
-        "inventario": extract_sqlite("data/raw/inventario.db", log, "stock_diario"),
-        "campanas": extract_api_mock("data/raw/api_campanas.json")
+        # Extracción de la tabla de stock actual
+        "inventario_actual": extract_sqlite("data/raw/inventario.db", log, "inventario_actual"),
+        # NUEVA EXTRACCIÓN: Tabla de movimientos
+        "movimientos_inventario": extract_sqlite("data/raw/inventario.db", log, "movimientos_inventario"),
+        "campanas": extract_api_mock("data/raw/api_marketing_response.json")
     }
     
     for key, df in data.items():

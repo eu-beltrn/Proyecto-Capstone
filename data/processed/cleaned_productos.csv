@@ -1,10 +1,5 @@
-ID_Producto,Nombre,Categoria,Precio_USD
-101,Laptop ASUS ZenBook,TECNOLOGÍA,1200.5
-102,Smartphone Samsung S24,TECNOLOGIA,899.99
-103,Teclado Mecánico RGB,ACCESORIOS,45.0
-104,Monitor Gamer 27',MONITORES,0.0
-105,Mouse Inalámbrico Logi,ACCESORIOS,25.0
-106,Audífonos Sony WH,AUDIO,199.99
-107,Impresora HP DeskJet,IMPRESIÓN,85.0
-109,Tablet Lenovo Tab,TECNOLOGÍA,150.0
-110,Smartwatch Xiaomi,GADGETS,0.0
+producto_id,nombre_producto,categoria,subcategoria,marca,costo_unitario,precio_lista,proveedor_id
+2001,Laptop Pro 14,COMPUTO,LAPTOPS,TECHONE,3800,4500,900
+2002,Monitor 27,MONITORES,LED,VISIONX,900,1250,901
+2003,Mouse Inalambrico,ACCESORIOS,MOUSE,CLICKIT,120,250,902
+2004,Teclado Mecanico,ACCESORIOS,TECLADOS,CLICKIT,500,890,902

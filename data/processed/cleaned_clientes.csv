@@ -1,6 +1,4 @@
-id_cliente,nombre,email,ciudad
-1,Juan Perez,juan.perez@mail.com,Guatemala
-2,Maria Lopez,maria.lopez@mail.com,Mixco
-3,Carlos Gómez,carlos.gomez@mail.com,No Especificada
-4,Ana Martínez,ana.martinez@mail.com,Villa Nueva
-5,Luis Fernando,luis.fernando@mail,Guatemala
+cliente_id,nombre,genero,edad,departamento,municipio,fecha_registro,segmento_cliente
+501,Ana López,F,31,Guatemala,Mixco,2024-05-10,Premium
+502,Carlos Pérez,M,42,Sacatepéquez,Antigua,2025-01-15,Frecuente
+503,María Gómez,F,27,Guatemala,No Especificado,2026-02-20,Nuevo

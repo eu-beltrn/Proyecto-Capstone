@@ -1,23 +1,31 @@
 import os
 import logging
+from datetime import datetime
 
 def setup_logging():
-    """Configura el sistema de logs para el pipeline ETL."""
+    """Configura el sistema de logs para el pipeline ETL, guardando un historial en archivo."""
+    # Asegurar que la carpeta de logs exista antes de inicializar el handler
+    os.makedirs("logs", exist_ok=True)
+    
+    log_filename = f"logs/etl_run_{datetime.now().strftime('%Y%m%d')}.log"
+    
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
-            logging.StreamHandler()
+            logging.StreamHandler(),                      # Muestra en la terminal
+            logging.FileHandler(log_filename, mode='a')   # Persiste en archivo físico (append)
         ]
     )
     return logging.getLogger("ETL_Logger")
 
 def init_directories():
-    """Asegura que la estructura de carpetas data/ exista antes de ejecutar."""
+    """Asegura que la estructura completa de carpetas del proyecto exista antes de ejecutar."""
     directories = [
         "data/raw",
         "data/processed",
-        "data/warehouse"
+        "data/warehouse",
+        "logs"
     ]
     for directory in directories:
         os.makedirs(directory, exist_ok=True)

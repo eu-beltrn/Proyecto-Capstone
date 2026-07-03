@@ -1,9 +1,6 @@
-ID_Venta,Fecha,ID_Cliente,ID_Producto,Cantidad,ID_Campana
-1001,2026-07-01,1,101,1,C-01
-1002,,2,102,2,C-01
-1003,,3,103,1,C-02
-1004,2026-07-01,4,104,1,C-03
-1005,2026-07-01,5,105,3,SIN_CAMPANA
-1006,2026-07-01,1,106,1,C-02
-1008,2026-07-01,999,101,1,SIN_CAMPANA
-1009,2026-07-01,2,999,5,SIN_CAMPANA
+venta_id,fecha_venta,cliente_id,producto_id,sucursal_id,canal_venta,cantidad,precio_unitario,descuento,total_venta,metodo_pago,campaña_id
+1001,2026-07-01,501,2001,1,Tienda,2,4500,0,9000,Tarjeta,SIN_CAMPANA
+1002,,502,2002,2,WhatsApp,1,1250,50,1200,Efectivo,SIN_CAMPANA
+1003,,503,2003,1,Web,3,250,0,750,Transferencia,SIN_CAMPANA
+1004,2026-07-02,501,2004,3,Tienda,1,890,0,890,Tarjeta,SIN_CAMPANA
+1005,2026-07-03,999,2002,2,Web,5,1250,125,6125,Transferencia,SIN_CAMPANA
