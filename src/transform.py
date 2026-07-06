@@ -75,7 +75,7 @@ def clean_campanas(df):
         
     return df
 
-def clean_ventas(df, df_clientes, df_productos):
+def clean_ventas(df, df_clientes, df_productos, log):
     """Limpia la tabla de hechos con validación cruzada usando nombres de columna reales."""
     df = df.copy()
     df.columns = df.columns.str.strip()
@@ -98,6 +98,11 @@ def clean_ventas(df, df_clientes, df_productos):
     
     df.loc[~df['cliente_id'].isin(valid_clientes), 'cliente_id'] = 999
     df.loc[~df['producto_id'].isin(valid_productos), 'producto_id'] = 999
+
+    invalid_clientes = ~df['cliente_id'].isin(valid_clientes)
+    if invalid_clientes.sum() > 0:
+        log.warning(f"Se encontraron {invalid_clientes.sum()} ventas con clientes huérfanos. Asignando ID 999.")
+    df.loc[invalid_clientes, 'cliente_id'] = 999
     
     # Mapeo preventivo de campañas vacías
     if 'campaña_id' in df.columns:
@@ -182,7 +187,7 @@ def run_transformation(raw_data, log):
     # Esta función ahora manejará la estructura de forma interna y segura
     cleaned_dfs['campanas'] = clean_campanas(raw_data['campanas'])
     
-    cleaned_dfs['ventas'] = clean_ventas(raw_data['ventas'], cleaned_dfs['clientes'], cleaned_dfs['productos'])
+    cleaned_dfs['ventas'] = clean_ventas(raw_data['ventas'], cleaned_dfs['clientes'], cleaned_dfs['productos'], log)
     
     # Guardar auditoría intermedia
     for name, df in cleaned_dfs.items():

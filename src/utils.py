@@ -21,11 +21,14 @@ def setup_logging():
 
 def init_directories():
     """Asegura que la estructura completa de carpetas del proyecto exista antes de ejecutar."""
+    from config import RAW_DIR, PROCESSED_DIR
     directories = [
-        "data/raw",
-        "data/processed",
-        "data/warehouse",
-        "logs"
+        RAW_DIR, 
+        PROCESSED_DIR, 
+        "data/warehouse", 
+        "logs", 
+        "reports", 
+        "docs"
     ]
     for directory in directories:
         os.makedirs(directory, exist_ok=True)

@@ -2,6 +2,7 @@ import pandas as pd
 import json
 import sqlite3
 import os
+from config import RAW_DIR, DB_PATH # Importar configuración
 
 def extract_csv(file_path):
     """Extrae datos de ventas desde un archivo CSV."""
@@ -61,20 +62,20 @@ def extract_api_mock(file_path):
     return pd.DataFrame(data)
 
 def run_extraction(log):
-    """Ejecuta todo el bloque de extracción y retorna un diccionario con DataFrames."""
+    """Ejecuta todo el bloque de extracción dinámicamente."""
     log.info("Iniciando fase de EXTRACCIÓN...")
     
-    prod_path = "data/raw/productos.xlsx - Sheet1.csv" if os.path.exists("data/raw/productos.xlsx - Sheet1.csv") else "data/raw/productos.xlsx"
+    prod_path = os.path.join(RAW_DIR, "productos.xlsx - Sheet1.csv")
+    if not os.path.exists(prod_path):
+        prod_path = os.path.join(RAW_DIR, "productos.xlsx")
 
     data = {
-        "ventas": extract_csv("data/raw/ventas.csv"),
+        "ventas": extract_csv(os.path.join(RAW_DIR, "ventas.csv")),
         "productos": extract_excel(prod_path),
-        "clientes": extract_json("data/raw/clientes.json"),
-        # Extracción de la tabla de stock actual
-        "inventario_actual": extract_sqlite("data/raw/inventario.db", log, "inventario_actual"),
-        # NUEVA EXTRACCIÓN: Tabla de movimientos
-        "movimientos_inventario": extract_sqlite("data/raw/inventario.db", log, "movimientos_inventario"),
-        "campanas": extract_api_mock("data/raw/api_marketing_response.json")
+        "clientes": extract_json(os.path.join(RAW_DIR, "clientes.json")),
+        "inventario_actual": extract_sqlite(DB_PATH, log, "inventario_actual"),
+        "movimientos_inventario": extract_sqlite(DB_PATH, log, "movimientos_inventario"),
+        "campanas": extract_api_mock(os.path.join(RAW_DIR, "api_marketing_response.json"))
     }
     
     for key, df in data.items():

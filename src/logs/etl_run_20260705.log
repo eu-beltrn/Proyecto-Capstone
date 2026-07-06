@@ -1,0 +1,14 @@
+2026-07-05 20:12:34,495 [INFO] ==============================================
+2026-07-05 20:12:34,498 [INFO] INICIANDO PIPELINE ETL - FASE DE CALIDAD (DÍA 2)
+2026-07-05 20:12:34,499 [INFO] ==============================================
+2026-07-05 20:12:34,500 [INFO] Iniciando fase de EXTRACCIÓN...
+2026-07-05 20:12:34,501 [ERROR] ¡El Pipeline falló de manera crítica!: No se encontró el archivo de ventas: data/raw/ventas.csv
+Traceback (most recent call last):
+  File "c:\users\jrodr\downloads\hojas de trabajo data engineering\proyecto-capstone\src\main.py", line 18, in main
+    raw_data = run_extraction(log)
+  File "C:\Users\jrodr\Downloads\HOJAS DE TRABAJO DATA ENGINEERING\Proyecto-Capstone\src\extract.py", line 70, in run_extraction
+    "ventas": extract_csv("data/raw/ventas.csv"),
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jrodr\Downloads\HOJAS DE TRABAJO DATA ENGINEERING\Proyecto-Capstone\src\extract.py", line 9, in extract_csv
+    raise FileNotFoundError(f"No se encontró el archivo de ventas: {file_path}")
+FileNotFoundError: No se encontró el archivo de ventas: data/raw/ventas.csv
