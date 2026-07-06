@@ -2,7 +2,8 @@ import pandas as pd
 import json
 import sqlite3
 import os
-from config import RAW_DIR, DB_PATH # Importar configuración
+# CORRECCIÓN: Importamos correctamente desde el paquete de la carpeta src
+from src.config import RAW_DIR, DB_PATH
 
 def extract_csv(file_path):
     """Extrae datos de ventas desde un archivo CSV."""
@@ -65,7 +66,8 @@ def run_extraction(log):
     """Ejecuta todo el bloque de extracción dinámicamente."""
     log.info("Iniciando fase de EXTRACCIÓN...")
     
-    prod_path = os.path.join(RAW_DIR, "productos.xlsx - Sheet1.csv")
+    # AJUSTE: Cambiar 'Sheet1.csv' por 'Sheet.csv' para coincidir con el archivo real
+    prod_path = os.path.join(RAW_DIR, "productos.xlsx - Sheet.csv")
     if not os.path.exists(prod_path):
         prod_path = os.path.join(RAW_DIR, "productos.xlsx")
 

@@ -83,8 +83,8 @@ def clean_ventas(df, df_clientes, df_productos, log):
     # Evitar duplicados en transacciones
     df = df.drop_duplicates(subset=['venta_id'], keep='first')
     
-    # Homogeneizar los múltiples formatos de fecha detectados en la exploración
-    df['fecha_venta'] = pd.to_datetime(df['fecha_venta'], errors='coerce', dayfirst=False).dt.strftime('%Y-%m-%d')
+    # CORRECCIÓN CRÍTICA: Usamos format='mixed' para soportar guiones, barras y variaciones de orden
+    df['fecha_venta'] = pd.to_datetime(df['fecha_venta'], errors='coerce', format='mixed').dt.strftime('%Y-%m-%d')
     
     # Tratamiento de cantidades monetarias y físicas
     df['cantidad'] = df['cantidad'].apply(lambda x: abs(x) if x < 0 else x)
@@ -96,13 +96,13 @@ def clean_ventas(df, df_clientes, df_productos, log):
     valid_clientes = df_clientes['cliente_id'].unique()
     valid_productos = df_productos['producto_id'].unique()
     
-    df.loc[~df['cliente_id'].isin(valid_clientes), 'cliente_id'] = 999
-    df.loc[~df['producto_id'].isin(valid_productos), 'producto_id'] = 999
-
+    # Evaluar nulos o huérfanos antes de asignar el comodín
     invalid_clientes = ~df['cliente_id'].isin(valid_clientes)
     if invalid_clientes.sum() > 0:
         log.warning(f"Se encontraron {invalid_clientes.sum()} ventas con clientes huérfanos. Asignando ID 999.")
     df.loc[invalid_clientes, 'cliente_id'] = 999
+    
+    df.loc[~df['producto_id'].isin(valid_productos), 'producto_id'] = 999
     
     # Mapeo preventivo de campañas vacías
     if 'campaña_id' in df.columns:

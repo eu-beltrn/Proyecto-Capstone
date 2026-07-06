@@ -50,17 +50,19 @@ Diseñar e implementar una solución integral de ingeniería de datos que permit
 
 ## Bases de datos
 
-- Google BigQuery (Data Warehouse)
+- ## Bases de datos
+
 - SQLite (fuente de datos)
+- PostgreSQL (Supabase) - Data Warehouse
 
 ## Herramientas
 
-- Visual Studio Code
+- Python
 - Jupyter Notebook
+- Visual Studio Code
 - Git
 - GitHub
-- Google Cloud Platform (GCP)
-- BigQuery
+- Supabase
 
 ---
 
@@ -75,9 +77,6 @@ Diseñar e implementar una solución integral de ingeniería de datos que permit
 | **matplotlib** | Generación de gráficos y visualización de los KPIs obtenidos durante el análisis.                                          |
 | **logging**    | Registro de eventos y seguimiento de la ejecución del proceso ETL para facilitar la depuración y monitoreo.                |
 | **json**       | Lectura y procesamiento de los archivos JSON utilizados como fuente de datos, así como de la respuesta de la API simulada. |
-| `google-cloud-bigquery` | Conexión y carga de datos al Data Warehouse en Google BigQuery.               |
-| `pandas-gbq`            | Envío de DataFrames desde Pandas hacia BigQuery y ejecución de consultas SQL. |
-| `db-dtypes`             | Compatibilidad entre los tipos de datos de BigQuery y Pandas.                 |
 
 
 

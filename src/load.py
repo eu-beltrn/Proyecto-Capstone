@@ -1,81 +1,43 @@
-# load.py
-import pandas as pd
-import sqlite3
-import os
-from config import ENV, DWH_PATH
-
-def get_connection(log):
-    """
-    Obtiene la conexión al Data Warehouse dependiendo del entorno.
-    Esto permite cambiar de SQLite (Local) a BigQuery/Snowflake (Producción) sin tocar el ETL.
-    """
-    if ENV == "LOCAL":
-        # Asegurar que el directorio del DW local exista
-        os.makedirs(os.path.dirname(DWH_PATH), exist_ok=True)
-        log.info(f"Conectando al Data Warehouse LOCAL en: {DWH_PATH}")
-        return sqlite3.connect(DWH_PATH)
-    else:
-        # Aquí irá la lógica de producción (Ej: SQLAlchemy para PostgreSQL o google-cloud-bigquery)
-        # engine = create_engine(os.getenv("DWH_URI"))
-        # return engine.connect()
-        log.error("La conexión a PRODUCCIÓN aún no está implementada.")
-        raise NotImplementedError("Configurar credenciales de producción.")
-
-def load_table(df, table_name, conn, log, if_exists='replace'):
-    """
-    Carga un DataFrame individual a una tabla en el Data Warehouse.
-    """
-    try:
-        # En Pandas to_sql, if_exists puede ser 'fail', 'replace', o 'append'
-        df.to_sql(table_name, conn, if_exists=if_exists, index=False)
-        log.info(f"  -> Tabla '{table_name}' cargada exitosamente. ({len(df)} filas, modo: {if_exists})")
-    except Exception as e:
-        log.error(f"  -> Error crítico al cargar la tabla '{table_name}': {str(e)}")
-        raise
+from sqlalchemy import create_engine
+from src.config import DATABASE_URL
 
 def load_to_warehouse(dw_tables, log):
     """
-    Orquesta la carga de todas las tablas del modelo estrella al Data Warehouse.
-    Recibe el diccionario 'dw_tables' generado por transform.py.
+    Carga el modelo estrella y las tablas de inventario directamente en la nube de Supabase (PostgreSQL).
+    
+    :param dw_tables: Diccionario de DataFrames limpios y modelados.
+    :param log: Instancia del logger para la auditoría de carga.
     """
-    log.info("Iniciando fase de CARGA (LOAD) al Data Warehouse...")
+    log.info("Iniciando fase de CARGA (LOAD) en la nube de Supabase...")
     
-    conn = get_connection(log)
-    
+    # Crear el motor de conexión a PostgreSQL
+    engine = None
     try:
-        # 1. Cargar Dimensiones
-        # Las dimensiones generalmente usan 'replace' en entornos de prueba.
-        # En producción, se usaría lógica de tipo SCD (Slowly Changing Dimensions) o un 'MERGE'.
-        dimensiones = [
-            "DimCliente", 
-            "DimProducto", 
-            "DimCampana", 
-            "DimTiempo", 
-            "DimInventarioActual", 
-            "DimMovimientosInventario"
-        ]
+        engine = create_engine(DATABASE_URL)
+        log.info("-> Conexión establecida exitosamente con el servidor de Supabase.")
         
-        for dim in dimensiones:
-            if dim in dw_tables:
-                load_table(dw_tables[dim], dim, conn, log, if_exists='replace')
+        # Iterar sobre cada DataFrame e inyectarlo en Supabase
+        for table_name, df in dw_tables.items():
+            # Forzar el nombre de la tabla a minúsculas por convención de PostgreSQL
+            table_name_pg = table_name.lower()
+            
+            log.info(f"   Inyectando tabla '{table_name_pg}' ({df.shape[0]} registros) en Supabase...")
+            
+            # pandas se encarga de convertir tipos de datos y estructurar la tabla en PostgreSQL
+            df.to_sql(
+                name=table_name_pg,
+                con=engine,
+                if_exists='replace',  # Recrea la tabla limpia en cada ejecución del pipeline
+                index=False
+            )
+            
+        log.info("¡Todas las tablas del modelo estrella han sido persistidas en Supabase con éxito!")
         
-        # 2. Cargar Tablas de Hechos
-        # Las tablas de hechos crecen con el tiempo. En producción, el modo suele ser 'append'
-        # o un UPSERT usando fechas para no duplicar.
-        # Para el alcance de este proyecto y las pruebas locales, usaremos 'replace' para 
-        # que el equipo pueda correr el script múltiples veces sin duplicar los 100 registros.
-        hechos = ["FactVentas"]
-        
-        for hecho in hechos:
-            if hecho in dw_tables:
-                # Cambiar a 'append' cuando el pipeline pase a incremental
-                load_table(dw_tables[hecho], hecho, conn, log, if_exists='replace')
-                
-        log.info("==============================================")
-        log.info(" ¡FASE DE CARGA (LOAD) COMPLETADA CON ÉXITO! ")
-        log.info("==============================================")
+    except Exception as e:
+        log.error(f"Error crítico durante la carga en Supabase: {str(e)}")
+        raise e
         
     finally:
-        # Siempre asegurar que la conexión se cierre, incluso si hay un error
-        conn.close()
-        log.info("Conexión al Data Warehouse cerrada.")
+        if engine:
+            engine.dispose()
+            log.info("-> Conexión a Supabase cerrada y liberada con seguridad.")
