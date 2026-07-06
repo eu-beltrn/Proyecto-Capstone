@@ -50,8 +50,8 @@ Diseñar e implementar una solución integral de ingeniería de datos que permit
 
 ## Bases de datos
 
-- PostgreSQL (Supabase)
-- SQLite
+- Google BigQuery (Data Warehouse)
+- SQLite (fuente de datos)
 
 ## Herramientas
 
@@ -59,23 +59,27 @@ Diseñar e implementar una solución integral de ingeniería de datos que permit
 - Jupyter Notebook
 - Git
 - GitHub
+- Google Cloud Platform (GCP)
+- BigQuery
 
 ---
 
 # Librerías utilizadas
 
-| Librería | Descripción |
-|----------|-------------|
-| pandas | Manipulación, limpieza y transformación de datos. |
-| numpy | Operaciones matemáticas y procesamiento numérico. |
-| sqlalchemy | Conexión y administración de bases de datos mediante ORM y SQL. |
-| psycopg2-binary | Adaptador para conectar Python con PostgreSQL (Supabase). |
-| python-dotenv | Gestión segura de variables de entorno y credenciales. |
-| requests | Consumo de la API REST simulada. |
-| openpyxl | Lectura y escritura de archivos Excel (.xlsx). |
-| matplotlib | Generación de gráficos e indicadores visuales. |
-| jupyter | Ejecución y documentación del proyecto mediante notebooks. |
-| ipykernel | Kernel para la ejecución del entorno Jupyter. |
+| Librería       | Descripción                                                                                                                |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **pandas**     | Lectura, manipulación, limpieza e integración de los datos provenientes de las diferentes fuentes.                         |
+| **numpy**      | Apoyo en operaciones numéricas y manejo eficiente de datos durante el proceso de transformación.                           |
+| **os**         | Gestión y validación de rutas de archivos, verificando su existencia antes de procesarlos.                                 |
+| **sqlite3**    | Conexión y extracción de la información almacenada en la base de datos SQLite del inventario.                              |
+| **matplotlib** | Generación de gráficos y visualización de los KPIs obtenidos durante el análisis.                                          |
+| **logging**    | Registro de eventos y seguimiento de la ejecución del proceso ETL para facilitar la depuración y monitoreo.                |
+| **json**       | Lectura y procesamiento de los archivos JSON utilizados como fuente de datos, así como de la respuesta de la API simulada. |
+| `google-cloud-bigquery` | Conexión y carga de datos al Data Warehouse en Google BigQuery.               |
+| `pandas-gbq`            | Envío de DataFrames desde Pandas hacia BigQuery y ejecución de consultas SQL. |
+| `db-dtypes`             | Compatibilidad entre los tipos de datos de BigQuery y Pandas.                 |
+
+
 
 ---
 
