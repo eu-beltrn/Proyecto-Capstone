@@ -326,3 +326,148 @@ KeyError: 'movimientos_inventario'
 2026-07-06 20:39:53,347 [INFO] =====================================================
 2026-07-06 20:39:53,347 [INFO]  ¡PIPELINE ETL CLOUD COMPLETO EJECUTADO CON ÉXITO! 
 2026-07-06 20:39:53,347 [INFO] =====================================================
+2026-07-06 21:07:10,789 [INFO] =====================================================
+2026-07-06 21:07:10,789 [INFO] INICIANDO PIPELINE ETL END-TO-END - SUPABASE (DÍA 3)
+2026-07-06 21:07:10,789 [INFO] =====================================================
+2026-07-06 21:07:10,789 [INFO] Iniciando fase de EXTRACCIÓN masiva...
+2026-07-06 21:07:11,857 [INFO] Iniciando fase de TRANSFORMACIÓN y LIMPIEZA...
+2026-07-06 21:07:11,886 [WARNING] -> 'movimientos_inventario' no encontrado en datos crudos. Saltando transformación.
+2026-07-06 21:07:12,547 [WARNING] Se encontraron 5085 ventas con clientes huérfanos. Asignando ID 999.
+2026-07-06 21:07:12,614 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_clientes.csv'
+2026-07-06 21:07:12,620 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_productos.csv'
+2026-07-06 21:07:12,631 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_inventario_actual.csv'
+2026-07-06 21:07:12,781 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_campanas.csv'
+2026-07-06 21:07:13,757 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_ventas.csv'
+2026-07-06 21:07:13,877 [INFO] Iniciando fase de CARGA hacia BigQuery...
+2026-07-06 21:07:13,920 [INFO]    Inyectando tabla 'dwh_ventas.DimCliente' (30601 registros)...
+2026-07-06 21:07:18,687 [INFO] 30601 out of 30601 rows loaded.
+2026-07-06 21:07:18,687 [INFO]    Inyectando tabla 'dwh_ventas.DimProducto' (4101 registros)...
+2026-07-06 21:07:23,313 [INFO] 4101 out of 4101 rows loaded.
+2026-07-06 21:07:23,313 [INFO]    Inyectando tabla 'dwh_ventas.DimCampana' (81001 registros)...
+2026-07-06 21:07:28,407 [INFO] 81001 out of 81001 rows loaded.
+2026-07-06 21:07:28,407 [INFO]    Inyectando tabla 'dwh_ventas.DimTiempo' (2043 registros)...
+2026-07-06 21:07:31,785 [INFO] 2043 out of 2043 rows loaded.
+2026-07-06 21:07:31,786 [INFO]    Inyectando tabla 'dwh_ventas.FactVentas' (250000 registros)...
+2026-07-06 21:07:40,716 [INFO] 250000 out of 250000 rows loaded.
+2026-07-06 21:07:40,717 [INFO]    Inyectando tabla 'dwh_ventas.DimInventarioActual' (4000 registros)...
+2026-07-06 21:07:44,478 [INFO] 4000 out of 4000 rows loaded.
+2026-07-06 21:07:44,480 [INFO] ¡Todas las tablas persistidas en BigQuery con éxito!
+2026-07-06 21:07:44,482 [INFO] =====================================================
+2026-07-06 21:07:44,482 [INFO]  ¡PIPELINE ETL CLOUD COMPLETO EJECUTADO CON ÉXITO! 
+2026-07-06 21:07:44,483 [INFO] =====================================================
+2026-07-06 21:08:48,374 [INFO] =====================================================
+2026-07-06 21:08:48,374 [INFO] INICIANDO PIPELINE ETL END-TO-END - SUPABASE (DÍA 3)
+2026-07-06 21:08:48,374 [INFO] =====================================================
+2026-07-06 21:08:48,374 [INFO] Iniciando fase de EXTRACCIÓN masiva...
+2026-07-06 21:08:50,077 [INFO] Iniciando fase de TRANSFORMACIÓN y LIMPIEZA...
+2026-07-06 21:08:50,109 [WARNING] -> 'movimientos_inventario' no encontrado en datos crudos. Saltando transformación.
+2026-07-06 21:08:52,053 [WARNING] Se encontraron 5085 ventas con clientes huérfanos. Asignando ID 999.
+2026-07-06 21:08:52,292 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_clientes.csv'
+2026-07-06 21:08:52,341 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_productos.csv'
+2026-07-06 21:08:52,354 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_inventario_actual.csv'
+2026-07-06 21:08:52,891 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_campanas.csv'
+2026-07-06 21:08:56,112 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_ventas.csv'
+2026-07-06 21:08:56,447 [INFO] Iniciando fase de CARGA hacia BigQuery...
+2026-07-06 21:08:56,627 [INFO]    Inyectando tabla 'dwh_ventas.DimCliente' (30601 registros)...
+2026-07-06 21:09:02,075 [INFO] 30601 out of 30601 rows loaded.
+2026-07-06 21:09:02,078 [INFO]    Inyectando tabla 'dwh_ventas.DimProducto' (4101 registros)...
+2026-07-06 21:09:06,010 [INFO] 4101 out of 4101 rows loaded.
+2026-07-06 21:09:06,013 [INFO]    Inyectando tabla 'dwh_ventas.DimCampana' (81001 registros)...
+2026-07-06 21:09:14,268 [INFO] 81001 out of 81001 rows loaded.
+2026-07-06 21:09:14,270 [INFO]    Inyectando tabla 'dwh_ventas.DimTiempo' (2043 registros)...
+2026-07-06 21:09:17,679 [INFO] 2043 out of 2043 rows loaded.
+2026-07-06 21:09:17,680 [INFO]    Inyectando tabla 'dwh_ventas.FactVentas' (250000 registros)...
+2026-07-06 21:09:28,525 [INFO] 250000 out of 250000 rows loaded.
+2026-07-06 21:09:28,527 [INFO]    Inyectando tabla 'dwh_ventas.DimInventarioActual' (4000 registros)...
+2026-07-06 21:09:32,349 [INFO] 4000 out of 4000 rows loaded.
+2026-07-06 21:09:32,350 [INFO] ¡Todas las tablas persistidas en BigQuery con éxito!
+2026-07-06 21:09:32,350 [INFO] =====================================================
+2026-07-06 21:09:32,350 [INFO]  ¡PIPELINE ETL CLOUD COMPLETO EJECUTADO CON ÉXITO! 
+2026-07-06 21:09:32,350 [INFO] =====================================================
+2026-07-06 21:09:55,409 [INFO] =====================================================
+2026-07-06 21:09:55,409 [INFO] INICIANDO PIPELINE ETL END-TO-END - SUPABASE (DÍA 3)
+2026-07-06 21:09:55,409 [INFO] =====================================================
+2026-07-06 21:09:55,409 [INFO] Iniciando fase de EXTRACCIÓN masiva...
+2026-07-06 21:09:56,390 [INFO] Iniciando fase de TRANSFORMACIÓN y LIMPIEZA...
+2026-07-06 21:09:56,413 [WARNING] -> 'movimientos_inventario' no encontrado en datos crudos. Saltando transformación.
+2026-07-06 21:09:57,032 [WARNING] Se encontraron 5085 ventas con clientes huérfanos. Asignando ID 999.
+2026-07-06 21:09:57,100 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_clientes.csv'
+2026-07-06 21:09:57,111 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_productos.csv'
+2026-07-06 21:09:57,116 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_inventario_actual.csv'
+2026-07-06 21:09:57,257 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_campanas.csv'
+2026-07-06 21:09:58,207 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_ventas.csv'
+2026-07-06 21:09:58,307 [INFO] Iniciando fase de CARGA hacia BigQuery...
+2026-07-06 21:09:58,337 [INFO]    Inyectando tabla 'dwh_ventas.DimCliente' (30601 registros)...
+2026-07-06 21:10:02,478 [INFO] 30601 out of 30601 rows loaded.
+2026-07-06 21:10:02,478 [INFO]    Inyectando tabla 'dwh_ventas.DimProducto' (4101 registros)...
+2026-07-06 21:10:05,827 [INFO] 4101 out of 4101 rows loaded.
+2026-07-06 21:10:05,832 [INFO]    Inyectando tabla 'dwh_ventas.DimCampana' (81001 registros)...
+2026-07-06 21:10:12,486 [INFO] 81001 out of 81001 rows loaded.
+2026-07-06 21:10:12,486 [INFO]    Inyectando tabla 'dwh_ventas.DimTiempo' (2043 registros)...
+2026-07-06 21:10:17,832 [INFO] 2043 out of 2043 rows loaded.
+2026-07-06 21:10:17,834 [INFO]    Inyectando tabla 'dwh_ventas.FactVentas' (250000 registros)...
+2026-07-06 21:10:27,368 [INFO] 250000 out of 250000 rows loaded.
+2026-07-06 21:10:27,370 [INFO]    Inyectando tabla 'dwh_ventas.DimInventarioActual' (4000 registros)...
+2026-07-06 21:10:30,357 [INFO] 4000 out of 4000 rows loaded.
+2026-07-06 21:10:30,359 [INFO] ¡Todas las tablas persistidas en BigQuery con éxito!
+2026-07-06 21:10:30,360 [INFO] =====================================================
+2026-07-06 21:10:30,360 [INFO]  ¡PIPELINE ETL CLOUD COMPLETO EJECUTADO CON ÉXITO! 
+2026-07-06 21:10:30,361 [INFO] =====================================================
+2026-07-06 21:14:03,910 [INFO] =====================================================
+2026-07-06 21:14:03,910 [INFO] INICIANDO PIPELINE ETL END-TO-END - SUPABASE (DÍA 3)
+2026-07-06 21:14:03,911 [INFO] =====================================================
+2026-07-06 21:14:03,911 [INFO] Iniciando fase de EXTRACCIÓN masiva...
+2026-07-06 21:14:05,343 [INFO] Iniciando fase de TRANSFORMACIÓN y LIMPIEZA...
+2026-07-06 21:14:05,389 [WARNING] -> 'movimientos_inventario' no encontrado en datos crudos. Saltando transformación.
+2026-07-06 21:14:07,195 [WARNING] Se encontraron 5085 ventas con clientes huérfanos. Asignando ID 999.
+2026-07-06 21:14:07,417 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_clientes.csv'
+2026-07-06 21:14:07,465 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_productos.csv'
+2026-07-06 21:14:07,479 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_inventario_actual.csv'
+2026-07-06 21:14:07,969 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_campanas.csv'
+2026-07-06 21:14:11,114 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_ventas.csv'
+2026-07-06 21:14:11,459 [INFO] Iniciando fase de CARGA hacia BigQuery...
+2026-07-06 21:14:11,636 [INFO]    Inyectando tabla 'dwh_ventas.DimCliente' (30601 registros)...
+2026-07-06 21:14:17,539 [INFO] 30601 out of 30601 rows loaded.
+2026-07-06 21:14:17,541 [INFO]    Inyectando tabla 'dwh_ventas.DimProducto' (4101 registros)...
+2026-07-06 21:14:22,105 [INFO] 4101 out of 4101 rows loaded.
+2026-07-06 21:14:22,106 [INFO]    Inyectando tabla 'dwh_ventas.DimCampana' (81001 registros)...
+2026-07-06 21:14:28,550 [INFO] 81001 out of 81001 rows loaded.
+2026-07-06 21:14:28,550 [INFO]    Inyectando tabla 'dwh_ventas.DimTiempo' (2043 registros)...
+2026-07-06 21:14:32,896 [INFO] 2043 out of 2043 rows loaded.
+2026-07-06 21:14:32,896 [INFO]    Inyectando tabla 'dwh_ventas.FactVentas' (250000 registros)...
+2026-07-06 21:14:40,710 [INFO] 250000 out of 250000 rows loaded.
+2026-07-06 21:14:40,713 [INFO]    Inyectando tabla 'dwh_ventas.DimInventarioActual' (4000 registros)...
+2026-07-06 21:14:44,314 [INFO] 4000 out of 4000 rows loaded.
+2026-07-06 21:14:44,316 [INFO] ¡Todas las tablas persistidas en BigQuery con éxito!
+2026-07-06 21:14:44,316 [INFO] =====================================================
+2026-07-06 21:14:44,318 [INFO]  ¡PIPELINE ETL CLOUD COMPLETO EJECUTADO CON ÉXITO! 
+2026-07-06 21:14:44,319 [INFO] =====================================================
+2026-07-06 21:22:06,785 [INFO] =====================================================
+2026-07-06 21:22:06,785 [INFO] INICIANDO PIPELINE ETL END-TO-END - SUPABASE (DÍA 3)
+2026-07-06 21:22:06,785 [INFO] =====================================================
+2026-07-06 21:22:06,785 [INFO] Iniciando fase de EXTRACCIÓN masiva...
+2026-07-06 21:22:07,815 [INFO] Iniciando fase de TRANSFORMACIÓN y LIMPIEZA...
+2026-07-06 21:22:07,834 [WARNING] -> 'movimientos_inventario' no encontrado en datos crudos. Saltando transformación.
+2026-07-06 21:22:08,583 [WARNING] Se encontraron 5085 ventas con clientes huérfanos. Asignando ID 999.
+2026-07-06 21:22:08,702 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_clientes.csv'
+2026-07-06 21:22:08,721 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_productos.csv'
+2026-07-06 21:22:08,728 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_inventario_actual.csv'
+2026-07-06 21:22:08,975 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_campanas.csv'
+2026-07-06 21:22:10,701 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_ventas.csv'
+2026-07-06 21:22:10,895 [INFO] Iniciando fase de CARGA hacia BigQuery...
+2026-07-06 21:22:10,955 [INFO]    Inyectando tabla 'dwh_ventas.DimCliente' (30601 registros)...
+2026-07-06 21:22:14,815 [INFO] 30601 out of 30601 rows loaded.
+2026-07-06 21:22:14,815 [INFO]    Inyectando tabla 'dwh_ventas.DimProducto' (4101 registros)...
+2026-07-06 21:22:18,549 [INFO] 4101 out of 4101 rows loaded.
+2026-07-06 21:22:18,550 [INFO]    Inyectando tabla 'dwh_ventas.DimCampana' (81001 registros)...
+2026-07-06 21:22:25,155 [INFO] 81001 out of 81001 rows loaded.
+2026-07-06 21:22:25,155 [INFO]    Inyectando tabla 'dwh_ventas.DimTiempo' (2043 registros)...
+2026-07-06 21:22:28,987 [INFO] 2043 out of 2043 rows loaded.
+2026-07-06 21:22:28,989 [INFO]    Inyectando tabla 'dwh_ventas.FactVentas' (250000 registros)...
+2026-07-06 21:22:37,337 [INFO] 250000 out of 250000 rows loaded.
+2026-07-06 21:22:37,338 [INFO]    Inyectando tabla 'dwh_ventas.DimInventarioActual' (4000 registros)...
+2026-07-06 21:22:41,260 [INFO] 4000 out of 4000 rows loaded.
+2026-07-06 21:22:41,260 [INFO] ¡Todas las tablas persistidas en BigQuery con éxito!
+2026-07-06 21:22:41,260 [INFO] =====================================================
+2026-07-06 21:22:41,261 [INFO]  ¡PIPELINE ETL CLOUD COMPLETO EJECUTADO CON ÉXITO! 
+2026-07-06 21:22:41,261 [INFO] =====================================================
