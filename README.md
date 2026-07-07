@@ -50,32 +50,35 @@ Diseñar e implementar una solución integral de ingeniería de datos que permit
 
 ## Bases de datos
 
-- PostgreSQL (Supabase)
-- SQLite
+- ## Bases de datos
+
+- SQLite (fuente de datos)
+- PostgreSQL (Supabase) - Data Warehouse
 
 ## Herramientas
 
-- Visual Studio Code
+- Python
 - Jupyter Notebook
+- Visual Studio Code
 - Git
 - GitHub
+- Supabase
 
 ---
 
 # Librerías utilizadas
 
-| Librería | Descripción |
-|----------|-------------|
-| pandas | Manipulación, limpieza y transformación de datos. |
-| numpy | Operaciones matemáticas y procesamiento numérico. |
-| sqlalchemy | Conexión y administración de bases de datos mediante ORM y SQL. |
-| psycopg2-binary | Adaptador para conectar Python con PostgreSQL (Supabase). |
-| python-dotenv | Gestión segura de variables de entorno y credenciales. |
-| requests | Consumo de la API REST simulada. |
-| openpyxl | Lectura y escritura de archivos Excel (.xlsx). |
-| matplotlib | Generación de gráficos e indicadores visuales. |
-| jupyter | Ejecución y documentación del proyecto mediante notebooks. |
-| ipykernel | Kernel para la ejecución del entorno Jupyter. |
+| Librería       | Descripción                                                                                                                |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **pandas**     | Lectura, manipulación, limpieza e integración de los datos provenientes de las diferentes fuentes.                         |
+| **numpy**      | Apoyo en operaciones numéricas y manejo eficiente de datos durante el proceso de transformación.                           |
+| **os**         | Gestión y validación de rutas de archivos, verificando su existencia antes de procesarlos.                                 |
+| **sqlite3**    | Conexión y extracción de la información almacenada en la base de datos SQLite del inventario.                              |
+| **matplotlib** | Generación de gráficos y visualización de los KPIs obtenidos durante el análisis.                                          |
+| **logging**    | Registro de eventos y seguimiento de la ejecución del proceso ETL para facilitar la depuración y monitoreo.                |
+| **json**       | Lectura y procesamiento de los archivos JSON utilizados como fuente de datos, así como de la respuesta de la API simulada. |
+
+
 
 ---
 
