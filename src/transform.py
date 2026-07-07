@@ -2,129 +2,206 @@ import pandas as pd
 import numpy as np
 import sys
 import os
+import re
+import unicodedata
 
 # Asegura que Python pueda ver la carpeta raíz donde está config.py
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# IMPORTACIÓN CORREGIDA: Traemos las rutas que usa run_extraction
 from config import RAW_DIR, DB_PATH 
 
+# ==============================================================================
+# DICCIONARIOS MAESTROS DE NORMALIZACIÓN
+# ==============================================================================
+
+MAPEO_CATEGORIAS = {
+    'COMPUTACION': 'COMPUTO', 'CMPUTO': 'COMPUTO', 'COMPUTOO': 'COMPUTO', 
+    'COMUPTO': 'COMPUTO', 'PC': 'COMPUTO', 'EQUIPO DE COMPUTO': 'COMPUTO',
+    'ORDENADORES': 'COMPUTO', 'COMPU': 'COMPUTO', 'COMP': 'COMPUTO',
+    'MONITOR': 'MONITORES', 'MONITORS': 'MONITORES', 'MNT': 'MONITORES',
+    'PANTALLAS': 'MONITORES', 'PANTALLA': 'MONITORES', 'MONITORE': 'MONITORES',
+    'ACCESORIO': 'ACCESORIOS', 'ACCESORI': 'ACCESORIOS', 'ACCS': 'ACCESORIOS',
+    'ACESORIOS': 'ACCESORIOS', 'ACCESORIS': 'ACCESORIOS', 'PERIFERICOS': 'ACCESORIOS',
+    'IMPRESORA': 'IMPRESION', 'IMPRESORAS': 'IMPRESION', 'IMPRESIONES': 'IMPRESION',
+    'IMPR': 'IMPRESION', 'PRINT': 'IMPRESION', 'IMPRESIN': 'IMPRESION',
+    'RED': 'REDES', 'NETWORK': 'REDES', 'NETWORKING': 'REDES',
+    'CONECTIVIDAD': 'REDES', 'ROUTERS': 'REDES', 'REDE': 'REDES',
+    'SEGURIDA': 'SEGURIDAD', 'SECURITY': 'SEGURIDAD', 'CAMARAS': 'SEGURIDAD',
+    'CCTV': 'SEGURIDAD', 'SGURIDAD': 'SEGURIDAD', 'SEG': 'SEGURIDAD'
+}
+
+MAPEO_MARCAS = {
+    'TEC ONE': 'TECHONE', 'TECH ONE': 'TECHONE', 'TECHON': 'TECHONE', 'TCHONE': 'TECHONE',
+    'VISION X': 'VISIONX', 'VSIONX': 'VISIONX', 'VISION': 'VISIONX', 'VISONX': 'VISIONX',
+    'CLICK IT': 'CLICKIT', 'CLIKIT': 'CLICKIT', 'CLICKT': 'CLICKIT', 'CLICK': 'CLICKIT',
+    'SECURE ID': 'SECUREID', 'SECURID': 'SECUREID', 'SECURE': 'SECUREID', 'SCUREID': 'SECUREID',
+    'PRINT MAX': 'PRINTMAX', 'PRNTMAX': 'PRINTMAX', 'PRINTM': 'PRINTMAX', 'PRINTMAXS': 'PRINTMAX',
+    'DEL': 'DELL', 'DELLL': 'DELL',
+    'H P': 'HP', 'HEWLETT PACKARD': 'HP'
+}
+
+MAPEO_PLATAFORMAS = {
+    'FACEBOO': 'FACEBOOK', 'FACEBOOK ADS': 'FACEBOOK', 'FB': 'FACEBOOK', 'F': 'FACEBOOK',
+    'FACEBOK': 'FACEBOOK', 'FACE': 'FACEBOOK', 'FCBK': 'FACEBOOK', 'META': 'FACEBOOK',
+    'INST': 'INSTAGRAM', 'INSTA': 'INSTAGRAM', 'INSTAGRA': 'INSTAGRAM', 'IG': 'INSTAGRAM',
+    'I': 'INSTAGRAM', 'INSTGRAM': 'INSTAGRAM', 'INTAGRAM': 'INSTAGRAM',
+    'GOOGL': 'GOOGLE', 'GOOGLE ADS': 'GOOGLE', 'GGL': 'GOOGLE', 'GADS': 'GOOGLE',
+    'GOGLE': 'GOOGLE', 'SEARCH': 'GOOGLE', 'SEM': 'GOOGLE',
+    'TIK TOK': 'TIKTOK', 'TKTOK': 'TIKTOK', 'TT': 'TIKTOK', 'TIKTO': 'TIKTOK',
+    'LINKED IN': 'LINKEDIN', 'LKD': 'LINKEDIN', 'IN': 'LINKEDIN',
+    'X': 'TWITTER', 'TWITER': 'TWITTER', 'TWT': 'TWITTER'
+}
+
+MAPEO_SEGMENTOS = {
+    'Corporativ': 'Corporativo', 'Corp': 'Corporativo', 'Corporativos': 'Corporativo', 'Empresa': 'Corporativo',
+    'Frecuent': 'Frecuente', 'Frecuentes': 'Frecuente', 'Recurrente': 'Frecuente', 'Regular': 'Frecuente',
+    'Premiu': 'Premium', 'Prem': 'Premium', 'Vip': 'Premium', 'Oro': 'Premium',
+    'Nuev': 'Nuevo', 'Nuevos': 'Nuevo', 'Reciente': 'Nuevo', 'New': 'Nuevo',
+    'Inactiv': 'Inactivo', 'Inactivos': 'Inactivo', 'Baja': 'Inactivo', 'Perdido': 'Inactivo'
+}
+
+MAPEO_MOVIMIENTOS = {
+    'ENTRADAS': 'ENTRADA', 'IN': 'ENTRADA', 'COMPRA': 'ENTRADA', 'INGRESO': 'ENTRADA',
+    'SALIDAS': 'SALIDA', 'OUT': 'SALIDA', 'VENTA': 'SALIDA', 'EGRESO': 'SALIDA',
+    'AJUSTES': 'AJUSTE', 'MERMA': 'AJUSTE', 'DEVOLUCION': 'AJUSTE', 'CORRECCION': 'AJUSTE'
+}
+
+# ==============================================================================
+# FUNCIONES DE TRANSFORMACIÓN Y LIMPIEZA
+# ==============================================================================
+
+def normalize_text(text_series, is_name=False):
+    """
+    Función de nivel corporativo para limpieza profunda de strings.
+    Elimina tildes, caracteres especiales, espacios múltiples y estandariza mayúsculas/minúsculas.
+    """
+    s = text_series.astype(str).fillna('DESCONOCIDO')
+    s = s.apply(lambda x: unicodedata.normalize('NFKD', x).encode('ASCII', 'ignore').decode('utf-8'))
+    s = s.str.replace(r'[^a-zA-Z0-9\s]', '', regex=True)
+    s = s.str.replace(r'\s+', ' ', regex=True).str.strip()
+    
+    if is_name:
+        s = s.str.title()
+    else:
+        s = s.str.upper()
+        
+    return s
+
 def clean_clientes(df):
-    """Limpia la fuente de clientes (clientes.json)."""
+    """Limpia la fuente de clientes con normalización profunda."""
     df = df.copy()
-    # Eliminar duplicados exactos por cliente_id según el esquema real
     df = df.drop_duplicates(subset=['cliente_id'], keep='first')
     
-    # Limpieza de texto y manejo de vacíos ocultos ("")
-    df['nombre'] = df['nombre'].str.strip().str.title()
-    df['departamento'] = df['departamento'].str.strip().str.title()
-    df['municipio'] = df['municipio'].str.strip().replace('', 'No Especificado').fillna('No Especificado')
+    df['nombre'] = normalize_text(df['nombre'], is_name=True)
+    df['departamento'] = normalize_text(df['departamento'], is_name=True)
+    df['municipio'] = normalize_text(df['municipio'], is_name=True)
+    df['municipio'] = df['municipio'].replace(['', 'Nan', 'Desconocido'], 'No Especificado')
+    
+    # Normalización del segmento
+    df['segmento_cliente'] = normalize_text(df['segmento_cliente'], is_name=True)
+    df['segmento_cliente'] = df['segmento_cliente'].replace(MAPEO_SEGMENTOS)
+    
     return df
 
 def clean_productos(df):
-    """Limpia la fuente de productos (productos.xlsx)."""
+    """Limpia productos y corrige errores ortográficos masivamente."""
     df = df.copy()
     df.columns = df.columns.str.strip()
-    
-    # Validar duplicados usando el nombre de columna real 'producto_id'
     df = df.drop_duplicates(subset=['producto_id'], keep='first')
-    df['nombre_producto'] = df['nombre_producto'].str.strip()
-    df['categoria'] = df['categoria'].str.strip().str.upper()
-    df['subcategoria'] = df['subcategoria'].str.strip().str.upper()
-    df['marca'] = df['marca'].str.strip().str.upper()
     
-    # Convertir métricas financieras de forma segura
+    df['nombre_producto'] = normalize_text(df['nombre_producto'])
+    df['categoria'] = normalize_text(df['categoria'])
+    df['subcategoria'] = normalize_text(df['subcategoria'])
+    df['marca'] = normalize_text(df['marca'])
+    
+    # Aplicar diccionarios
+    df['categoria'] = df['categoria'].replace(MAPEO_CATEGORIAS)
+    df['marca'] = df['marca'].replace(MAPEO_MARCAS)
+    
     df['costo_unitario'] = pd.to_numeric(df['costo_unitario'], errors='coerce').fillna(0.0)
     df['precio_lista'] = pd.to_numeric(df['precio_lista'], errors='coerce').fillna(0.0)
+    
     return df
 
 def clean_inventario_actual(df):
     """Limpia la tabla de stock estático del inventario."""
     df = df.copy()
     df.columns = df.columns.str.strip()
-    df['bodega'] = df['bodega'].str.strip().str.upper()
+    df['bodega'] = normalize_text(df['bodega'], is_name=True)
+    
     df['existencia'] = pd.to_numeric(df['existencia'], errors='coerce').fillna(0).astype(int)
+    df['existencia'] = df['existencia'].apply(lambda x: abs(x) if x < 0 else x)
     return df
 
 def clean_movimientos_inventario(df):
     """Limpia la tabla histórica de flujos del inventario."""
     df = df.copy()
     df.columns = df.columns.str.strip()
-    df['tipo'] = df['tipo'].str.strip().str.upper()
+    
+    df['tipo'] = normalize_text(df['tipo'])
+    df['tipo'] = df['tipo'].replace(MAPEO_MOVIMIENTOS)
+    
     df['fecha'] = pd.to_datetime(df['fecha'], errors='coerce').dt.strftime('%Y-%m-%d')
     df['cantidad'] = pd.to_numeric(df['cantidad'], errors='coerce').fillna(0).astype(int)
+    df['cantidad'] = df['cantidad'].apply(lambda x: abs(x) if x < 0 else x)
     return df
 
 def clean_campanas(df):
-    """Limpia la fuente de campañas expandiendo correctamente la estructura anidada."""
+    """Limpia la fuente de campañas y estandariza plataformas."""
     df = df.copy()
     
-    # Si detectamos que el DataFrame tiene la columna anidada 'campaigns',
-    # la aplanamos por completo para recuperar la estructura de tabla
     if 'campaigns' in df.columns:
-        # En caso de que venga como una serie de diccionarios, la normalizamos
         if isinstance(df['campaigns'].iloc[0], dict):
             df = pd.json_normalize(df['campaigns'])
         else:
-            # Si en extract.py cambió y viene la lista cruda
             lista_campanas = df['campaigns'].tolist()
             df = pd.DataFrame(lista_campanas)
             
-    # Estandarizamos los nombres de las columnas por seguridad
     df.columns = df.columns.str.strip()
     
-    # Ahora sí aplicamos las reglas del Día 2 con total seguridad
     if 'plataforma' in df.columns:
-        df['plataforma'] = df['plataforma'].str.strip().str.upper()
+        df['plataforma'] = normalize_text(df['plataforma'])
+        df['plataforma'] = df['plataforma'].replace(MAPEO_PLATAFORMAS)
         
     if 'costo' in df.columns:
         df['costo'] = pd.to_numeric(df['costo'], errors='coerce').fillna(0.0)
+        df['costo'] = df['costo'].apply(lambda x: abs(x) if x < 0 else x)
         
     return df
 
 def clean_ventas(df, df_clientes, df_productos, log):
-    """Limpia la tabla de hechos con validación cruzada usando nombres de columna reales."""
+    """Limpia la tabla de hechos y separa registros corruptos en cuarentena (DLQ)."""
     df = df.copy()
     df.columns = df.columns.str.strip()
-    
-    # Evitar duplicados en transacciones
     df = df.drop_duplicates(subset=['venta_id'], keep='first')
     
-    # CORRECCIÓN CRÍTICA: Usamos format='mixed' para soportar guiones, barras y variaciones de orden
     df['fecha_venta'] = pd.to_datetime(df['fecha_venta'], errors='coerce', format='mixed').dt.strftime('%Y-%m-%d')
     
-    # Tratamiento de cantidades monetarias y físicas
-    # 1. Convertir a numérico forzando errores a NaN (Not a Number)
-    df['cantidad'] = pd.to_numeric(df['cantidad'], errors='coerce')
-    
-    # 2. Rellenar los valores que no eran números con 0 o la media
-    df['cantidad'] = df['cantidad'].fillna(0)
-    
-    # 3. Ahora sí aplicar tu lógica de valores negativos
-    df['cantidad'] = df['cantidad'].apply(lambda x: abs(x) if x < 0 else x)
+    df['cantidad'] = pd.to_numeric(df['cantidad'], errors='coerce').fillna(0)
+    df['cantidad'] = df['cantidad'].apply(lambda x: abs(x) if x < 0 else x).astype(int)
     df['precio_unitario'] = pd.to_numeric(df['precio_unitario'], errors='coerce').fillna(0.0)
     df['total_venta'] = pd.to_numeric(df['total_venta'], errors='coerce').fillna(0.0)
+    df['total_venta'] = df['total_venta'].apply(lambda x: abs(x) if x < 0 else x)
     
-    # Validaciones cruzadas de Integridad Referencial
+    # Validaciones de Integridad Referencial
     valid_clientes = df_clientes['cliente_id'].unique()
     valid_productos = df_productos['producto_id'].unique()
     
-    # Evaluar nulos o huérfanos antes de asignar el comodín
-    invalid_clientes = ~df['cliente_id'].isin(valid_clientes)
-    if invalid_clientes.sum() > 0:
-        log.warning(f"Se encontraron {invalid_clientes.sum()} ventas con clientes huérfanos. Asignando ID 999.")
-    df.loc[invalid_clientes, 'cliente_id'] = 999
+    invalid_mask = (~df['cliente_id'].isin(valid_clientes)) | (~df['producto_id'].isin(valid_productos))
     
-    df.loc[~df['producto_id'].isin(valid_productos), 'producto_id'] = 999
+    df_cuarentena = df[invalid_mask].copy()
+    df_valido = df[~invalid_mask].copy()
     
-    # Mapeo preventivo de campañas vacías
-    if 'campaña_id' in df.columns:
-        df['campaña_id'] = df['campaña_id'].fillna('SIN_CAMPANA').astype(str).str.strip()
-        df['campaña_id'] = df['campaña_id'].replace(['', 'nan', 'None'], 'SIN_CAMPANA')
-    else:
-        df['campaña_id'] = 'SIN_CAMPANA'
+    if not df_cuarentena.empty:
+        log.warning(f"¡ALERTA DE GOBIERNO DE DATOS! {len(df_cuarentena)} transacciones enviadas a cuarentena por falta de integridad referencial.")
+        df_cuarentena['motivo_rechazo'] = 'Cliente o Producto Inexistente'
         
-    return df
+    if 'campaña_id' in df_valido.columns:
+        df_valido['campaña_id'] = df_valido['campaña_id'].fillna('SIN_CAMPANA').astype(str).str.strip()
+        df_valido['campaña_id'] = df_valido['campaña_id'].replace(['', 'nan', 'None'], 'SIN_CAMPANA')
+    else:
+        df_valido['campaña_id'] = 'SIN_CAMPANA'
+        
+    return df_valido, df_cuarentena
 
 def build_dimensional_model(dfs):
     """Construye las tablas del modelo Estrella listo para el Data Warehouse."""
@@ -143,7 +220,7 @@ def build_dimensional_model(dfs):
         'producto_id': 'SK_Producto', 'nombre_producto': 'Nombre_Producto', 'categoria': 'Categoria',
         'subcategoria': 'Subcategoria', 'marca': 'Marca', 'costo_unitario': 'Costo_Unitario', 'precio_lista': 'Precio_Lista'
     })
-    comodin_producto = pd.DataFrame([{'SK_Producto': 999, 'Nombre_Producto': 'Producto Genérico', 'Categoria': 'DESCONOCIDA', 'Subcategoria': 'DESCONOCIDA', 'Marca': 'DESCONOCIDA', 'Costo_Unitario': 0.0, 'Precio_Lista': 0.0}])
+    comodin_producto = pd.DataFrame([{'SK_Producto': 999, 'Nombre_Producto': 'Producto Generico', 'Categoria': 'DESCONOCIDA', 'Subcategoria': 'DESCONOCIDA', 'Marca': 'DESCONOCIDA', 'Costo_Unitario': 0.0, 'Precio_Lista': 0.0}])
     dim_producto = pd.concat([dim_producto, comodin_producto], ignore_index=True)
     
     # 3. DimCampana
@@ -196,7 +273,6 @@ def run_transformation(raw_data, log):
     cleaned_dfs['productos'] = clean_productos(raw_data['productos'])
     cleaned_dfs['inventario_actual'] = clean_inventario_actual(raw_data['inventario_actual'])
     
-    # Manejo seguro de movimientos_inventario: solo procesar si existe
     if 'movimientos_inventario' in raw_data and raw_data['movimientos_inventario'] is not None:
         cleaned_dfs['movimientos_inventario'] = clean_movimientos_inventario(raw_data['movimientos_inventario'])
         log.info("-> 'movimientos_inventario' procesado correctamente.")
@@ -204,9 +280,14 @@ def run_transformation(raw_data, log):
         log.warning("-> 'movimientos_inventario' no encontrado en datos crudos. Saltando transformación.")
     
     cleaned_dfs['campanas'] = clean_campanas(raw_data['campanas'])
-    cleaned_dfs['ventas'] = clean_ventas(raw_data['ventas'], cleaned_dfs['clientes'], cleaned_dfs['productos'], log)
     
-    # Guardar auditoría
+    cleaned_dfs['ventas'], df_cuarentena = clean_ventas(raw_data['ventas'], cleaned_dfs['clientes'], cleaned_dfs['productos'], log)
+    
+    if not df_cuarentena.empty:
+        df_cuarentena.to_csv("data/processed/dlq_ventas_cuarentena.csv", index=False)
+        log.info(f"-> Auditoría: Archivo DLQ generado en 'data/processed/dlq_ventas_cuarentena.csv'")
+    
+    # Guardar auditoría intermedia
     for name, df in cleaned_dfs.items():
         df.to_csv(f"data/processed/cleaned_{name}.csv", index=False)
         log.info(f"-> Datos limpios guardados en 'data/processed/cleaned_{name}.csv'")
@@ -217,5 +298,9 @@ def run_transformation(raw_data, log):
     dw_tables['DimInventarioActual'] = cleaned_dfs['inventario_actual']
     if 'movimientos_inventario' in cleaned_dfs:
         dw_tables['DimMovimientosInventario'] = cleaned_dfs['movimientos_inventario']
-    
+        
+    # Enviar la tabla de cuarentena a BigQuery para el Dashboard de Calidad
+    if not df_cuarentena.empty:
+        dw_tables['DLQ_Ventas_Cuarentena'] = df_cuarentena
+        
     return dw_tables
