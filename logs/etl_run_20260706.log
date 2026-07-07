@@ -1,0 +1,33 @@
+2026-07-06 17:49:22,693 [INFO] INICIANDO PIPELINE ETL END-TO-END
+2026-07-06 17:49:22,693 [INFO] ==============================================
+2026-07-06 17:49:22,693 [INFO] INICIANDO PIPELINE ETL - FASE DE CALIDAD (DÍA 2)
+2026-07-06 17:49:22,693 [INFO] ==============================================
+2026-07-06 17:49:22,693 [INFO] Iniciando fase de EXTRACCIÓN...
+2026-07-06 17:49:22,910 [INFO] -> Extraído con éxito: ventas (5 registros originales)
+2026-07-06 17:49:22,910 [INFO] -> Extraído con éxito: productos (4 registros originales)
+2026-07-06 17:49:22,910 [INFO] -> Extraído con éxito: clientes (3 registros originales)
+2026-07-06 17:49:22,926 [INFO] -> Extraído con éxito: inventario_actual (3 registros originales)
+2026-07-06 17:49:22,926 [INFO] -> Extraído con éxito: movimientos_inventario (2 registros originales)
+2026-07-06 17:49:22,926 [INFO] -> Extraído con éxito: campanas (2 registros originales)
+2026-07-06 17:49:22,926 [INFO] Iniciando fase de TRANSFORMACIÓN y LIMPIEZA...
+2026-07-06 17:49:22,944 [WARNING] Se encontraron 1 ventas con clientes huérfanos. Asignando ID 999.
+2026-07-06 17:49:22,946 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_clientes.csv'
+2026-07-06 17:49:22,946 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_productos.csv'
+2026-07-06 17:49:22,953 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_inventario_actual.csv'
+2026-07-06 17:49:22,954 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_movimientos_inventario.csv'
+2026-07-06 17:49:22,958 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_campanas.csv'
+2026-07-06 17:49:22,960 [INFO] -> Datos limpios guardados en 'data/processed/cleaned_ventas.csv'
+2026-07-06 17:49:22,971 [INFO] Iniciando fase de CARGA (LOAD) al Data Warehouse...
+2026-07-06 17:49:22,971 [INFO] Conectando al Data Warehouse LOCAL en: data/warehouse/dw_ventas.db
+2026-07-06 17:49:22,993 [INFO]   -> Tabla 'DimCliente' cargada exitosamente. (4 filas, modo: replace)
+2026-07-06 17:49:23,010 [INFO]   -> Tabla 'DimProducto' cargada exitosamente. (5 filas, modo: replace)
+2026-07-06 17:49:23,026 [INFO]   -> Tabla 'DimCampana' cargada exitosamente. (3 filas, modo: replace)
+2026-07-06 17:49:23,040 [INFO]   -> Tabla 'DimTiempo' cargada exitosamente. (3 filas, modo: replace)
+2026-07-06 17:49:23,056 [INFO]   -> Tabla 'DimInventarioActual' cargada exitosamente. (3 filas, modo: replace)
+2026-07-06 17:49:23,071 [INFO]   -> Tabla 'DimMovimientosInventario' cargada exitosamente. (2 filas, modo: replace)
+2026-07-06 17:49:23,088 [INFO]   -> Tabla 'FactVentas' cargada exitosamente. (5 filas, modo: replace)
+2026-07-06 17:49:23,088 [INFO] ==============================================
+2026-07-06 17:49:23,088 [INFO]  ¡FASE DE CARGA (LOAD) COMPLETADA CON ÉXITO! 
+2026-07-06 17:49:23,089 [INFO] ==============================================
+2026-07-06 17:49:23,090 [INFO] Conexión al Data Warehouse cerrada.
+2026-07-06 17:49:23,090 [INFO] ¡PIPELINE EJECUTADO CORRECTAMENTE!
