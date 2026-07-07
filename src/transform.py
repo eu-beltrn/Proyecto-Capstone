@@ -1,6 +1,13 @@
 import pandas as pd
 import numpy as np
+import sys
 import os
+
+# Asegura que Python pueda ver la carpeta raíz donde está config.py
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# IMPORTACIÓN CORREGIDA: Traemos las rutas que usa run_extraction
+from config import RAW_DIR, DB_PATH 
 
 def clean_clientes(df):
     """Limpia la fuente de clientes (clientes.json)."""
@@ -87,8 +94,14 @@ def clean_ventas(df, df_clientes, df_productos, log):
     df['fecha_venta'] = pd.to_datetime(df['fecha_venta'], errors='coerce', format='mixed').dt.strftime('%Y-%m-%d')
     
     # Tratamiento de cantidades monetarias y físicas
+    # 1. Convertir a numérico forzando errores a NaN (Not a Number)
+    df['cantidad'] = pd.to_numeric(df['cantidad'], errors='coerce')
+    
+    # 2. Rellenar los valores que no eran números con 0 o la media
+    df['cantidad'] = df['cantidad'].fillna(0)
+    
+    # 3. Ahora sí aplicar tu lógica de valores negativos
     df['cantidad'] = df['cantidad'].apply(lambda x: abs(x) if x < 0 else x)
-    df['cantidad'] = pd.to_numeric(df['cantidad'], errors='coerce').fillna(1).astype(int)
     df['precio_unitario'] = pd.to_numeric(df['precio_unitario'], errors='coerce').fillna(0.0)
     df['total_venta'] = pd.to_numeric(df['total_venta'], errors='coerce').fillna(0.0)
     
@@ -182,22 +195,27 @@ def run_transformation(raw_data, log):
     cleaned_dfs['clientes'] = clean_clientes(raw_data['clientes'])
     cleaned_dfs['productos'] = clean_productos(raw_data['productos'])
     cleaned_dfs['inventario_actual'] = clean_inventario_actual(raw_data['inventario_actual'])
-    cleaned_dfs['movimientos_inventario'] = clean_movimientos_inventario(raw_data['movimientos_inventario'])
     
-    # Esta función ahora manejará la estructura de forma interna y segura
+    # Manejo seguro de movimientos_inventario: solo procesar si existe
+    if 'movimientos_inventario' in raw_data and raw_data['movimientos_inventario'] is not None:
+        cleaned_dfs['movimientos_inventario'] = clean_movimientos_inventario(raw_data['movimientos_inventario'])
+        log.info("-> 'movimientos_inventario' procesado correctamente.")
+    else:
+        log.warning("-> 'movimientos_inventario' no encontrado en datos crudos. Saltando transformación.")
+    
     cleaned_dfs['campanas'] = clean_campanas(raw_data['campanas'])
-    
     cleaned_dfs['ventas'] = clean_ventas(raw_data['ventas'], cleaned_dfs['clientes'], cleaned_dfs['productos'], log)
     
-    # Guardar auditoría intermedia
+    # Guardar auditoría
     for name, df in cleaned_dfs.items():
         df.to_csv(f"data/processed/cleaned_{name}.csv", index=False)
         log.info(f"-> Datos limpios guardados en 'data/processed/cleaned_{name}.csv'")
         
     dw_tables = build_dimensional_model(cleaned_dfs)
     
-    # Enviar las tablas de inventario procesadas directo al Data Warehouse
+    # Carga condicional al DWH
     dw_tables['DimInventarioActual'] = cleaned_dfs['inventario_actual']
-    dw_tables['DimMovimientosInventario'] = cleaned_dfs['movimientos_inventario']
+    if 'movimientos_inventario' in cleaned_dfs:
+        dw_tables['DimMovimientosInventario'] = cleaned_dfs['movimientos_inventario']
     
     return dw_tables

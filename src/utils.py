@@ -1,8 +1,12 @@
-import os
 import logging
 from datetime import datetime
-# CORRECCIÓN AQUÍ: Importar desde el paquete src para que main.py lo resuelva bien
-from src.config import RAW_DIR, PROCESSED_DIR
+
+# Corrección en src/utils.py
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from config import RAW_DIR, PROCESSED_DIR
 
 def setup_logging():
     """Configura el sistema de logs para el pipeline ETL, guardando un historial en archivo."""

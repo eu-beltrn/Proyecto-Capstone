@@ -1,9 +1,14 @@
 import pandas as pd
 import json
 import sqlite3
+import sys
 import os
-# CORRECCIÓN: Importamos correctamente desde el paquete de la carpeta src
-from src.config import RAW_DIR, DB_PATH
+
+# Asegura que Python pueda ver la carpeta raíz donde está config.py
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# IMPORTACIÓN CORREGIDA: Traemos las rutas que usa run_extraction
+from config import RAW_DIR, DB_PATH 
 
 def extract_csv(file_path):
     """Extrae datos de ventas desde un archivo CSV."""
@@ -12,10 +17,9 @@ def extract_csv(file_path):
     return pd.read_csv(file_path)
 
 def extract_excel(file_path):
-    """Extrae datos de productos (soporta tanto .xlsx como .csv de respaldo)."""
+    """Extrae datos de productos."""
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"No se encontró el archivo de productos: {file_path}")
-    # Si viene como CSV debido a la conversión, usamos read_csv, sino read_excel
     if file_path.endswith('.csv'):
         return pd.read_csv(file_path)
     return pd.read_excel(file_path)
@@ -27,14 +31,13 @@ def extract_json(file_path):
     return pd.read_json(file_path)
 
 def extract_sqlite(db_path, log, table_name="stock_diario"):
-    """Extrae datos de inventario desde SQLite de forma dinámica si el nombre cambia."""
+    """Extrae datos de inventario desde SQLite."""
     if not os.path.exists(db_path):
         raise FileNotFoundError(f"No se encontró la DB de inventario: {db_path}")
     
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # Listar todas las tablas disponibles
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     available_tables = [row[0] for row in cursor.fetchall()]
     
@@ -42,10 +45,9 @@ def extract_sqlite(db_path, log, table_name="stock_diario"):
         conn.close()
         raise ValueError(f"El archivo SQLite en {db_path} no contiene ninguna tabla.")
     
-    # Si 'stock_diario' no está, tomamos la primera tabla que exista de forma inteligente
     if table_name not in available_tables:
         selected_table = available_tables[0]
-        log.warning(f"La tabla esperada '{table_name}' no existe. Extrayendo dinámicamente de '{selected_table}'.")
+        log.warning(f"La tabla '{table_name}' no existe. Extrayendo de '{selected_table}'.")
     else:
         selected_table = table_name
 
@@ -55,32 +57,23 @@ def extract_sqlite(db_path, log, table_name="stock_diario"):
     return df
 
 def extract_api_mock(file_path):
-    """Simula la extracción desde una API REST leyendo un archivo JSON de campañas."""
+    """Simula la extracción desde una API REST."""
     if not os.path.exists(file_path):
-        raise FileNotFoundError(f"No se encontró el mock de la API de campañas: {file_path}")
+        raise FileNotFoundError(f"No se encontró el mock de la API: {file_path}")
     with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     return pd.DataFrame(data)
 
 def run_extraction(log):
-    """Ejecuta todo el bloque de extracción dinámicamente."""
-    log.info("Iniciando fase de EXTRACCIÓN...")
+    log.info("Iniciando fase de EXTRACCIÓN masiva...")
     
-    # AJUSTE: Cambiar 'Sheet1.csv' por 'Sheet.csv' para coincidir con el archivo real
-    prod_path = os.path.join(RAW_DIR, "productos.xlsx - Sheet.csv")
-    if not os.path.exists(prod_path):
-        prod_path = os.path.join(RAW_DIR, "productos.xlsx")
-
+    # En src/extract.py, dentro de run_extraction:
     data = {
-        "ventas": extract_csv(os.path.join(RAW_DIR, "ventas.csv")),
-        "productos": extract_excel(prod_path),
-        "clientes": extract_json(os.path.join(RAW_DIR, "clientes.json")),
-        "inventario_actual": extract_sqlite(DB_PATH, log, "inventario_actual"),
-        "movimientos_inventario": extract_sqlite(DB_PATH, log, "movimientos_inventario"),
-        "campanas": extract_api_mock(os.path.join(RAW_DIR, "api_marketing_response.json"))
+        "ventas": extract_csv(os.path.join(RAW_DIR, "ventas_masivo.csv")),
+        "productos": extract_excel(os.path.join(RAW_DIR, "productos_masivo.xlsx")),
+        "clientes": extract_json(os.path.join(RAW_DIR, "clientes_masivo.json")),
+        "inventario_actual": extract_sqlite(os.path.join(RAW_DIR, "inventario_masivo.db"), log, "inventario_actual"),
+        # "movimientos_inventario": extract_sqlite(..., "movimientos_inventario"), # <-- Comenta esto si el archivo ya no lo contiene
+        "campanas": extract_api_mock(os.path.join(RAW_DIR, "api_marketing_response_masivo.json"))
     }
-    
-    for key, df in data.items():
-        log.info(f"-> Extraído con éxito: {key} ({df.shape[0]} registros originales)")
-        
     return data

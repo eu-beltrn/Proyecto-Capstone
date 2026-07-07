@@ -1,43 +1,35 @@
-from sqlalchemy import create_engine
-from src.config import DATABASE_URL
+# src/load.py
+import pandas as pd
+import pandas_gbq  # <--- IMPORTANTE: Importar esto registra el método to_gbq
+import sys
+import os
+from google.oauth2 import service_account
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from config import GCP_PROJECT_ID, BQ_DATASET
 
 def load_to_warehouse(dw_tables, log):
-    """
-    Carga el modelo estrella y las tablas de inventario directamente en la nube de Supabase (PostgreSQL).
+    log.info("Iniciando fase de CARGA hacia BigQuery...")
     
-    :param dw_tables: Diccionario de DataFrames limpios y modelados.
-    :param log: Instancia del logger para la auditoría de carga.
-    """
-    log.info("Iniciando fase de CARGA (LOAD) en la nube de Supabase...")
+    key_path = "gcp_key.json"
+    credentials = service_account.Credentials.from_service_account_file(key_path)
     
-    # Crear el motor de conexión a PostgreSQL
-    engine = None
     try:
-        engine = create_engine(DATABASE_URL)
-        log.info("-> Conexión establecida exitosamente con el servidor de Supabase.")
-        
-        # Iterar sobre cada DataFrame e inyectarlo en Supabase
         for table_name, df in dw_tables.items():
-            # Forzar el nombre de la tabla a minúsculas por convención de PostgreSQL
-            table_name_pg = table_name.lower()
+            destination_table = f"{BQ_DATASET}.{table_name}"
+            log.info(f"   Inyectando tabla '{destination_table}' ({df.shape[0]} registros)...")
             
-            log.info(f"   Inyectando tabla '{table_name_pg}' ({df.shape[0]} registros) en Supabase...")
-            
-            # pandas se encarga de convertir tipos de datos y estructurar la tabla en PostgreSQL
-            df.to_sql(
-                name=table_name_pg,
-                con=engine,
-                if_exists='replace',  # Recrea la tabla limpia en cada ejecución del pipeline
-                index=False
+            # Usamos pandas_gbq.to_gbq directamente como función, es más seguro
+            pandas_gbq.to_gbq(
+                df, 
+                destination_table=destination_table, 
+                project_id=GCP_PROJECT_ID, 
+                credentials=credentials, 
+                if_exists='replace'
             )
             
-        log.info("¡Todas las tablas del modelo estrella han sido persistidas en Supabase con éxito!")
-        
+        log.info("¡Todas las tablas persistidas en BigQuery con éxito!")
+            
     except Exception as e:
-        log.error(f"Error crítico durante la carga en Supabase: {str(e)}")
+        log.error(f"Error crítico durante la carga: {str(e)}")
         raise e
-        
-    finally:
-        if engine:
-            engine.dispose()
-            log.info("-> Conexión a Supabase cerrada y liberada con seguridad.")
